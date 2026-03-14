@@ -1,4 +1,4 @@
-namespace HMS.Core.Enums;
+namespace HL.Core.Enums;
 
 public enum AppointmentStatus
 {

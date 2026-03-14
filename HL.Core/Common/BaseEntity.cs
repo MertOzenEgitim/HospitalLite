@@ -1,4 +1,4 @@
-namespace HMS.Core.Common;
+namespace HL.Core.Common;
 
 public abstract class BaseEntity
 {

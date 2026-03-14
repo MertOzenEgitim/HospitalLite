@@ -1,7 +1,7 @@
-using HMS.Core.Common;
-using HMS.Core.Enums;
+using HL.Core.Common;
+using HL.Core.Enums;
 
-namespace HMS.Core.Entities;
+namespace HL.Core.Entities;
 
 public class Appointment : BaseEntity
 {

@@ -1,6 +1,6 @@
-using HMS.Core.Common;
+using HL.Core.Common;
 
-namespace HMS.Core.Entities;
+namespace HL.Core.Entities;
 
 public class AppUser : BaseEntity
 {
