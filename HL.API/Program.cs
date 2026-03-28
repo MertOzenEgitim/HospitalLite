@@ -1,4 +1,6 @@
+using HL.Core.Interfaces;
 using HL.DataAccess.Context;
+using HL.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,9 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+builder.Services.AddScoped(typeof(IGenericRepository<>),typeof(GenericRepository<>));
+builder.Services.AddScoped<IUnitOfWork,UnitOfWork>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
