@@ -10,12 +10,23 @@ public class AppDbContext : DbContext
     
    }
    public DbSet<AppUser> Users {get;set;}
+   public DbSet<UserClaim> UserClaims {get;set;}
    public DbSet<Doctor> Doctors {get;set;}
    public DbSet<Department> Departments {get;set;}
    public DbSet<Appointment> Appointments {get;set;}
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<UserClaim>()
+        .HasOne<AppUser>()
+        .WithMany(u=>u.UserClaims)
+        .HasForeignKey(c=>c.AppUserId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        //index ekleyerek sorgu performansını arttırdık
+        modelBuilder.Entity<UserClaim>()
+        .HasIndex(c=>c.AppUserId);
+
         modelBuilder.Entity<Appointment>()
         .HasOne(a=>a.Patient)
         .WithMany()
