@@ -22,9 +22,16 @@ public class TokenService:ITokenService
             new Claim(ClaimTypes.Email,user.Email)
         };
 
-        foreach (var userClaim in user.UserClaims)
+        foreach (var userClaim in user.UserClaims.Where(x=>!string.IsNullOrWhiteSpace(x.ClaimType)))
         {
-            claims.Add(new Claim(userClaim.ClaimType,userClaim.ClaimValue));
+            if (userClaim.ClaimType == "Role")
+            {
+                claims.Add(new Claim(ClaimTypes.Role,userClaim.ClaimValue ?? string.Empty));
+            }
+            else
+            {
+                claims.Add(new Claim(userClaim.ClaimType,userClaim.ClaimValue ?? string.Empty));
+            }
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
@@ -45,4 +52,3 @@ public class TokenService:ITokenService
         );
     }
 }
-

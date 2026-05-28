@@ -19,7 +19,9 @@ public class AuthService:IAuthService
 
     public async Task<TokenDto> LoginAsync(LoginDto loginDto)
     {
-        var user=await _userRepo.Where(x=>x.Email==loginDto.Email).FirstOrDefaultAsync();
+        var user=await _userRepo.Where(x=>x.Email==loginDto.Email)
+            .Include(x=>x.UserClaims)
+            .FirstOrDefaultAsync();
 
         if(user==null || !BCrypt.Net.BCrypt.Verify(loginDto.Password,user.PasswordHash))
         throw new Exception("Geçersiz e-eposta veya şifre.");
