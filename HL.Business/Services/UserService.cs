@@ -34,6 +34,7 @@ public class UserService:IUserService
         {
             user.RefreshToken=refreshToken;
             user.RefreshTokenEndDate=expiration;
+            _userRepo.Update(user);
             await _unitOfWork.CommitAsync();
         }
     }

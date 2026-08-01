@@ -30,4 +30,12 @@ public class AuthController : ControllerBase
         var result = await _authService.LoginAsync(loginDto);
         return Ok(result); // Geriye TokenDto (Access + Refresh) döner
     }
+
+    // Refresh Token ile yeni set almak için kullanılır
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(RefreshTokenDto refreshTokenDto)
+    {
+        var result = await _authService.RefreshTokenLoginAsync(refreshTokenDto.RefreshToken);
+        return Ok(result); // Yeni TokenDto (yeni Access + yeni Refresh)
+    }
 }

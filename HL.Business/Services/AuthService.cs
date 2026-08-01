@@ -32,4 +32,23 @@ public class AuthService:IAuthService
 
         return tokenDto;
     }
+
+    public async Task<TokenDto> RefreshTokenLoginAsync(string refreshToken)
+    {
+        var user=await _userRepo.Where(x=>x.RefreshToken==refreshToken)
+        .Include(x=>x.UserClaims)
+        .FirstOrDefaultAsync();
+
+        if(user==null)
+            throw new Exception("Geçersiz refresh token.");
+
+        if(user.RefreshTokenEndDate==null || user.RefreshTokenEndDate<DateTime.Now)
+            throw new Exception("Refresh token süresi dolmuş. Lütfen tekrar giriş yapınız.");
+
+        var tokenDto=_tokenService.CreateToken(user);
+
+        await _userService.UpdateRefereshToken(user.Id,tokenDto.RefreshToken,DateTime.Now.AddDays(7));
+
+        return tokenDto;
+    }
 }
