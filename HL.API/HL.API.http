@@ -1,6 +1,58 @@
-@HL.API_HostAddress = http://localhost:5233
+@HostAddress = http://localhost:5233
 
-GET {{HL.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. Kayıt ol (role: 0=Admin, 1=Doctor, 2=Patient, 3=LabStaff)
+POST {{HostAddress}}/api/auth/register
+Content-Type: application/json
 
-###
+{
+  "role": 2,
+  "firstName": "Mert",
+  "lastName": "Özen",
+  "email": "mert123@gmail.com",
+  "password": "mert123"
+}
+
+### 2. Giriş yap → accessToken + refreshToken döner
+# @name login
+POST {{HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "mert123@gmail.com",
+  "password": "mert123"
+}
+
+### 3. Refresh → yukarıdaki login'in refreshToken'ı ile yeni set al (rotation)
+POST {{HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 4. ROTATION KANITI: aynı (eski) refresh token'ı TEKRAR gönder → geçersiz (DB'de ezildi)
+# Not: 3. adımı çalıştırdıktan sonra login.response hâlâ ESKİ token'ı tutar.
+# Bu istek "Geçersiz refresh token." (şu an HTTP 500) dönmeli → Bölüm 10'da 401 olacak.
+POST {{HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 5. Çıkış yap (logout) — access token GEREKLİ
+# Not: login.response'tan gelen accessToken'ı kullanıyoruz.
+POST {{HostAddress}}/api/auth/logout
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### 6. LOGOUT KANITI: çıkıştan sonra eski refreshToken ile yenileme dene → geçersiz
+# Refresh token null'landığı için bu istek hata dönmeli (şu an HTTP 500 → Bölüm 10'da 401).
+POST {{HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
+
+### 7. YETKİ TESTİ: token OLMADAN logout → 401 Unauthorized
+POST {{HostAddress}}/api/auth/logout

@@ -33,6 +33,11 @@ public class AuthService:IAuthService
         return tokenDto;
     }
 
+    public async Task LogoutAsync(int userId)
+    {
+        await _userService.RevokeRefreshToken(userId);
+    }
+
     public async Task<TokenDto> RefreshTokenLoginAsync(string refreshToken)
     {
         var user=await _userRepo.Where(x=>x.RefreshToken==refreshToken)

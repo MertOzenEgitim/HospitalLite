@@ -27,6 +27,7 @@ public class UserService:IUserService
         await _userRepo.AddAsync(user);
         await _unitOfWork.CommitAsync();
     }
+
     public async Task UpdateRefereshToken(int userId,string refreshToken,DateTime expiration)
     {
         var user=await _userRepo.GetByIdAsync(userId);
@@ -34,6 +35,18 @@ public class UserService:IUserService
         {
             user.RefreshToken=refreshToken;
             user.RefreshTokenEndDate=expiration;
+            _userRepo.Update(user);
+            await _unitOfWork.CommitAsync();
+        }
+    }
+    public async Task RevokeRefreshToken(int userId)
+    {
+        var user=await _userRepo.GetByIdAsync(userId);
+
+        if(user!=null)
+        {
+            user.RefreshToken=null;
+            user.RefreshTokenEndDate=null;
             _userRepo.Update(user);
             await _unitOfWork.CommitAsync();
         }

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HL.API.Controllers;
@@ -37,5 +39,17 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.RefreshTokenLoginAsync(refreshTokenDto.RefreshToken);
         return Ok(result); // Yeni TokenDto (yeni Access + yeni Refresh)
+    }
+
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var userIdClaim=User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if(string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized("Kullanıcı kimliği token'da bulunamadı");
+
+        await _authService.LogoutAsync(int.Parse(userIdClaim));
+        return Ok("Çıkış yapıldı. Refresh token iptal edildi.");
     }
 }
