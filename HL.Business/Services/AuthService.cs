@@ -28,7 +28,9 @@ public class AuthService:IAuthService
 
         var tokenDto=_tokenService.CreateToken(user);
 
-        await _userService.UpdateRefereshToken(user.Id,tokenDto.RefreshToken,DateTime.Now.AddDays(7));
+        user.RefreshToken=tokenDto.RefreshToken;
+        user.RefreshTokenEndDate=DateTime.Now.AddDays(7);
+        await _unitOfWork.CommitAsync();
 
         return tokenDto;
     }
@@ -52,7 +54,9 @@ public class AuthService:IAuthService
 
         var tokenDto=_tokenService.CreateToken(user);
 
-        await _userService.UpdateRefereshToken(user.Id,tokenDto.RefreshToken,DateTime.Now.AddDays(7));
+        user.RefreshToken=tokenDto.RefreshToken;
+        user.RefreshTokenEndDate=DateTime.Now.AddDays(7);
+        await _unitOfWork.CommitAsync();
 
         return tokenDto;
     }
