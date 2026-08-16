@@ -1,55 +1,62 @@
-using System.Security.Claims;
+using HL.Core.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace HL.API.Controllers;
 
-[ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController : BaseController
 {
     private readonly IAuthService _authService;
     private readonly IUserService _userService;
 
     public AuthController(IAuthService authService, IUserService userService, ITokenService tokenService)
-    {
+    {                                                          // ⚠ tokenService atanmıyor (Bölüm 24)
         _authService = authService;
         _userService = userService;
     }
 
-    // Yeni Kullanıcı Kaydı
     [HttpPost("register")]
     public async Task<IActionResult> Register(CreateUserDto createUserDto)
     {
         await _userService.CreateAsync(createUserDto);
-        return Ok("Kullanıcı başarıyla oluşturuldu. Giriş yapabilirsiniz.");
+        return CreateResponse(
+            ApiResponse<string>.SuccessResponse(
+                data: "Kullanıcı başarıyla oluşturuldu. Giriş yapabilirsiniz.",
+                message: "Kayıt başarılı."));
     }
 
-    // Giriş ve Token Alma
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto)
     {
         var result = await _authService.LoginAsync(loginDto);
-        return Ok(result); // Geriye TokenDto (Access + Refresh) döner
+        return CreateResponse(
+            ApiResponse<TokenDto>.SuccessResponse(result, "Giriş başarılı."));
     }
 
-    // Refresh Token ile yeni set almak için kullanılır
     [HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenDto refreshTokenDto)
     {
         var result = await _authService.RefreshTokenLoginAsync(refreshTokenDto.RefreshToken);
-        return Ok(result); // Yeni TokenDto (yeni Access + yeni Refresh)
+        return CreateResponse(
+            ApiResponse<TokenDto>.SuccessResponse(result, "Token yenilendi."));
     }
 
     [Authorize]
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        var userIdClaim=User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if(string.IsNullOrEmpty(userIdClaim))
-            return Unauthorized("Kullanıcı kimliği token'da bulunamadı");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdClaim))
+            return CreateResponse(
+                ApiResponse<string>.FailResponse("Kullanıcı kimliği token'da bulunamadı.", 401));
 
         await _authService.LogoutAsync(int.Parse(userIdClaim));
-        return Ok("Çıkış yapıldı. Refresh token iptal edildi.");
+        return CreateResponse(
+            ApiResponse<string>.SuccessResponse(
+                data: "Çıkış yapıldı. Refresh token iptal edildi.",
+                message: "Çıkış başarılı."));
     }
 }
