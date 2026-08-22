@@ -24,7 +24,7 @@ public class AuthService:IAuthService
             .FirstOrDefaultAsync();
 
         if(user==null || !BCrypt.Net.BCrypt.Verify(loginDto.Password,user.PasswordHash))
-        throw new Exception("Geçersiz e-eposta veya şifre.");
+            throw new UnauthorizedException("Geçersiz e-eposta veya şifre.","auth.invalid_credentials");
 
         var tokenDto=_tokenService.CreateToken(user);
 
@@ -47,10 +47,10 @@ public class AuthService:IAuthService
         .FirstOrDefaultAsync();
 
         if(user==null)
-            throw new Exception("Geçersiz refresh token.");
+            throw new UnauthorizedException("Geçersiz refresh token.","auth.invalid_refresh_token");
 
         if(user.RefreshTokenEndDate==null || user.RefreshTokenEndDate<DateTime.Now)
-            throw new Exception("Refresh token süresi dolmuş. Lütfen tekrar giriş yapınız.");
+            throw new UnauthorizedException("Refresh token süresi dolmuş. Lütfen tekrar giriş yapınız.","auth.refresh_token_expired");
 
         var tokenDto=_tokenService.CreateToken(user);
 

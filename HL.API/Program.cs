@@ -1,4 +1,5 @@
 using System.Text;
+using HL.API.Middleware;
 using HL.Core.Interfaces;
 using HL.DataAccess.Context;
 using HL.DataAccess.Repositories;
@@ -42,6 +43,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 

@@ -24,7 +24,8 @@ public class AuthController : BaseController
         return CreateResponse(
             ApiResponse<string>.SuccessResponse(
                 data: "Kullanıcı başarıyla oluşturuldu. Giriş yapabilirsiniz.",
-                message: "Kayıt başarılı."));
+                message: "Kayıt başarılı.",
+                messageKey:"auth.register_success"));
     }
 
     [HttpPost("login")]
@@ -32,7 +33,7 @@ public class AuthController : BaseController
     {
         var result = await _authService.LoginAsync(loginDto);
         return CreateResponse(
-            ApiResponse<TokenDto>.SuccessResponse(result, "Giriş başarılı."));
+            ApiResponse<TokenDto>.SuccessResponse(result, "Giriş başarılı.","auth.login_success"));
     }
 
     [HttpPost("refresh")]
@@ -40,7 +41,7 @@ public class AuthController : BaseController
     {
         var result = await _authService.RefreshTokenLoginAsync(refreshTokenDto.RefreshToken);
         return CreateResponse(
-            ApiResponse<TokenDto>.SuccessResponse(result, "Token yenilendi."));
+            ApiResponse<TokenDto>.SuccessResponse(result, "Token yenilendi.","auth.token_refreshed"));
     }
 
     [Authorize]
@@ -51,12 +52,13 @@ public class AuthController : BaseController
 
         if (string.IsNullOrEmpty(userIdClaim))
             return CreateResponse(
-                ApiResponse<string>.FailResponse("Kullanıcı kimliği token'da bulunamadı.", 401));
+                ApiResponse<string>.FailResponse("Kullanıcı kimliği token'da bulunamadı.","auth.missing_identity", 401));
 
         await _authService.LogoutAsync(int.Parse(userIdClaim));
         return CreateResponse(
             ApiResponse<string>.SuccessResponse(
                 data: "Çıkış yapıldı. Refresh token iptal edildi.",
-                message: "Çıkış başarılı."));
+                message: "Çıkış başarılı.",
+                messageKey:"auth.logout_success"));
     }
 }
